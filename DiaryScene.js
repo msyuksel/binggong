@@ -8,104 +8,110 @@ import {
   FlatList,
 } from "react-native";
 
-// Import the file system module
-const fs = require("fs");
+// Import SQLite module
+import SQLite from "react-native-sqlite-storage";
 
-// Define the path to the JSON file
-const filePath = "src/utils/exercises.json";
+// Open or create a SQLite database named 'exercises.db'
+const db = SQLite.openDatabase("exercises.db");
+
+// Define a function to create a table for exercises if it does not exist
+const createTable = () => {
+  // Return a promise that resolves with nothing
+  return new Promise((resolve, reject) => {
+    // Execute a SQL statement to create the table
+    db.executeSql(
+      "CREATE TABLE IF NOT EXISTS exercises (name TEXT, date TEXT)",
+      [],
+      () => {
+        // Resolve the promise with nothing if successful
+        resolve();
+      },
+      (error) => {
+        // Reject the promise with the error if failed
+        reject(error);
+      }
+    );
+  });
+};
 
 // Define a function to fetch the exercises for a given date
 const fetchExercises = (date) => {
   // Return a promise that resolves with the exercises array
   return new Promise((resolve, reject) => {
-    // Read the JSON file asynchronously
-    fs.readFile(filePath, "utf8", (err, data) => {
-      // If there is an error, reject the promise with the error
-      if (err) {
-        reject(err);
+    // Execute a SQL statement to query the exercises by the date
+    db.executeSql(
+      "SELECT rowid, name, date FROM exercises WHERE date = ?",
+      [date.toISOString()],
+      (results) => {
+        // Get the number of rows returned by the query
+        const len = results.rows.length;
+        // Create an empty array to store the exercises
+        const exercises = [];
+        // Loop through the rows and push each exercise object to the array
+        for (let i = 0; i < len; i++) {
+          const row = results.rows.item(i);
+          exercises.push({
+            key: row.rowid,
+            name: row.name,
+            date: new Date(row.date),
+          });
+        }
+        // Resolve the promise with the exercises array
+        resolve(exercises);
+      },
+      (error) => {
+        // Reject the promise with the error if failed
+        reject(error);
       }
-      // If there is no error, parse the data as a JSON object
-      else {
-        const exercises = JSON.parse(data);
-        // Filter the exercises by the date and resolve the promise with the filtered array
-        const filteredExercises = exercises.filter(
-          (exercise) =>
-            exercise.date.getDate() === date.getDate() &&
-            exercise.date.getMonth() === date.getMonth() &&
-            exercise.date.getFullYear() === date.getFullYear()
-        );
-        resolve(filteredExercises);
-      }
-    });
+    );
   });
 };
 
-// Define a function to save a new exercise to the JSON file
+// Define a function to save a new exercise to the database
 const saveExercise = (newExercise) => {
   // Return a promise that resolves with the new exercise object
   return new Promise((resolve, reject) => {
-    // Read the JSON file asynchronously
-    fs.readFile(filePath, "utf8", (err, data) => {
-      // If there is an error, reject the promise with the error
-      if (err) {
-        reject(err);
+    // Execute a SQL statement to insert the new exercise into the table
+    db.executeSql(
+      "INSERT INTO exercises (name, date) VALUES (?, ?)",
+      [newExercise.name, newExercise.date.toISOString()],
+      (results) => {
+        // Get the row id of the inserted exercise
+        const key = results.insertId;
+        // Add the key property to the new exercise object
+        newExercise.key = key;
+        // Resolve the promise with the new exercise object
+        resolve(newExercise);
+      },
+      (error) => {
+        // Reject the promise with the error if failed
+        reject(error);
       }
-      // If there is no error, parse the data as a JSON object
-      else {
-        const exercises = JSON.parse(data);
-        // Append the new exercise to the exercises array
-        exercises.push(newExercise);
-        // Stringify the updated exercises array and write it back to the JSON file asynchronously
-        fs.writeFile(filePath, JSON.stringify(exercises), "utf8", (err) => {
-          // If there is an error, reject the promise with the error
-          if (err) {
-            reject(err);
-          }
-          // If there is no error, resolve the promise with the new exercise object
-          else {
-            resolve(newExercise);
-          }
-        });
-      }
-    });
+    );
   });
 };
 
-// Define a function to delete selected exercises from the JSON file
+// Define a function to delete selected exercises from the database
 const deleteExercises = (selectedExercises) => {
   // Return a promise that resolves with nothing
   return new Promise((resolve, reject) => {
-    // Read the JSON file asynchronously
-    fs.readFile(filePath, "utf8", (err, data) => {
-      // If there is an error, reject the promise with the error
-      if (err) {
-        reject(err);
+    // Create an array of keys of the selected exercises
+    const keys = selectedExercises.map((exercise) => exercise.key);
+    // Create a placeholder string for the SQL statement
+    const placeholders = keys.map(() => "?").join(",");
+    // Execute a SQL statement to delete the selected exercises from the table
+    db.executeSql(
+      `DELETE FROM exercises WHERE rowid IN (${placeholders})`,
+      keys,
+      () => {
+        // Resolve the promise with nothing if successful
+        resolve();
+      },
+      (error) => {
+        // Reject the promise with the error if failed
+        reject(error);
       }
-      // If there is no error, parse the data as a JSON object
-      else {
-        const exercises = JSON.parse(data);
-        // Filter out the selected exercises from the exercises array
-        const remainingExercises = exercises.filter(
-          (exercise) => !selectedExercises.includes(exercise)
-        );
-        // Stringify the remaining exercises array and write it back to the JSON file asynchronously
-        fs.writeFile(
-          filePath,
-          JSON.stringify(remainingExercises),
-          "utf8",
-          (err) => {
-            // If there is an error, reject the promise with the error
-            if (err) {
-              reject(err);
-            }
-            // If there is no error, resolve the promise with nothing
-            else {
-              resolve();
-            }
-          }
-        );
-      }
-    });
+    );
   });
 };
 
@@ -129,39 +135,45 @@ const DiaryScene = () => {
   const [exercises, setExercises] = useState([]);
   const [selectedExercises, setSelectedExercises] = useState([]);
 
-  // Use an effect hook to fetch the exercises from the backend when the date changes
+  // Use an effect hook to create the table and fetch the exercises from the database when the date changes
   useEffect(() => {
-    fetchExercises(date).then((data) => {
-      setExercises(data);
+    // Create the table if it does not exist
+    createTable().then(() => {
+      // Fetch the exercises for the current date
+      fetchExercises(date).then((data) => {
+        // Update the exercises state with the data
+        setExercises(data);
+      });
     });
   }, [date]);
 
-  // Define a function to add a new exercise to the list and save it to the backend
+  // Define a function to add a new exercise to the list and save it to the database
   const addExercise = () => {
     // Generate a random exercise name (replace this with your own logic)
     const name = `Exercise ${Math.floor(Math.random() * 100) + 1}`;
     // Create a new exercise object with the name and the date
     const newExercise = { name, date };
-    // Save the new exercise to the backend
+    // Save the new exercise to the database
     saveExercise(newExercise).then(() => {
       // Update the exercises state with the new exercise
       setExercises([...exercises, newExercise]);
     });
   };
 
-  // Define a function to delete the selected exercises from the list and the backend
+  // Define a function to delete the selected exercises from the list and the database
   const deleteExercises = () => {
     // Filter out the selected exercises from the list
     const remainingExercises = exercises.filter(
       (exercise) => !selectedExercises.includes(exercise)
     );
-    // Delete the selected exercises from the backend
+    // Delete the selected exercises from the database
     deleteExercises(selectedExercises).then(() => {
       // Update the exercises and selectedExercises state with the remaining exercises
       setExercises(remainingExercises);
       setSelectedExercises([]);
     });
   };
+
   // Define a function to handle the press event on an exercise box
   const handlePress = (exercise) => {
     // If there is already a selected exercise, toggle the selection of the pressed exercise
@@ -169,6 +181,7 @@ const DiaryScene = () => {
       toggleSelection(exercise);
     }
   };
+
   // Define a function to handle the long press event on an exercise box
   const handleLongPress = (exercise) => {
     // Toggle the selection of the long pressed exercise
@@ -254,7 +267,7 @@ const DiaryScene = () => {
       )}
       <FlatList
         data={exercises}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.key.toString()}
         renderItem={({ item }) => (
           <ExerciseBox
             item={item}
