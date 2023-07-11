@@ -7,7 +7,7 @@ import {
   FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { addExercistStyles } from "../styles/addExerciseStyles/addExerciseStyles";
+import { addExercistStyles } from "../styles/AddExerciseStyles/addExerciseStyles";
 
 // Import the JSON data
 import exercises from "../utils/exerciseDatabase/exercises.json";
@@ -15,20 +15,22 @@ import exercises from "../utils/exerciseDatabase/exercises.json";
 // A component for rendering each exercise item
 const ExerciseItem = ({ item }) => {
   return (
-    <View style={addExercistStyles.itemContainer}>
-      <Text style={addExercistStyles.itemName}>{item.name}</Text>
-      <View
-        style={{ flexDirection: "column", margin: 0, alignSelf: "flex-end" }}
-      >
-        <Text style={addExercistStyles.itemDetails}>Force: {item.force}</Text>
-        <Text style={addExercistStyles.itemDetails}>
-          Primary Muscle: {item.primaryMuscles}
-        </Text>
+    <TouchableOpacity>
+      <View style={addExercistStyles.itemContainer}>
+        <Text style={addExercistStyles.itemName}>{item.name}</Text>
+        <View
+          style={{ flexDirection: "column", margin: 0, alignSelf: "flex-end" }}
+        >
+          <Text style={addExercistStyles.itemDetails}>Force: {item.force}</Text>
+          <Text style={addExercistStyles.itemDetails}>
+            Primary Muscle: {item.primaryMuscles}
+          </Text>
+        </View>
+        <TouchableOpacity style={addExercistStyles.addButton}>
+          <Ionicons name="add" size={24} color="white" />
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity style={addExercistStyles.addButton}>
-        <Ionicons name="add" size={24} color="white" />
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 };
 
