@@ -6,33 +6,11 @@ import {
   TextInput,
   FlatList,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { addExercistStyles } from "../styles/addExerciseStyles/addExerciseStyles";
+import { addExerciseStyles } from "../styles/addExerciseStyles/addExerciseStyles";
+import { ExerciseItem } from "../components/addExerciseComponents/ExerciseItem";
 
 // Import the JSON data
 import exercises from "../utils/exerciseDatabase/exercises.json";
-
-// A component for rendering each exercise item
-const ExerciseItem = ({ item }) => {
-  return (
-    <TouchableOpacity>
-      <View style={addExercistStyles.itemContainer}>
-        <Text style={addExercistStyles.itemName}>{item.name}</Text>
-        <View
-          style={{ flexDirection: "column", margin: 0, alignSelf: "flex-end" }}
-        >
-          <Text style={addExercistStyles.itemDetails}>Force: {item.force}</Text>
-          <Text style={addExercistStyles.itemDetails}>
-            Primary Muscle: {item.primaryMuscles}
-          </Text>
-        </View>
-        <TouchableOpacity style={addExercistStyles.addButton}>
-          <Ionicons name="add" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
-};
 
 // The main component for the "Add Exercise" screen
 const AddExerciseScene = () => {
@@ -43,9 +21,9 @@ const AddExerciseScene = () => {
   // A function to render the search bar with the custom exercises button
   const renderSearchBar = () => {
     return (
-      <View style={addExercistStyles.searchContainer}>
+      <View style={addExerciseStyles.searchContainer}>
         <TextInput
-          style={addExercistStyles.searchInput}
+          style={addExerciseStyles.searchInput}
           placeholder="Search for an exercise"
           value={search}
           onChangeText={setSearch}
@@ -57,18 +35,18 @@ const AddExerciseScene = () => {
   // A function to render the tabs for filtering the exercises
   const renderTabs = () => {
     return (
-      <View style={addExercistStyles.tabContainer}>
+      <View style={addExerciseStyles.tabContainer}>
         <TouchableOpacity
           style={[
-            addExercistStyles.tabButton,
-            tab === "All" && addExercistStyles.tabSelected,
+            addExerciseStyles.tabButton,
+            tab === "All" && addExerciseStyles.tabSelected,
           ]}
           onPress={() => setTab("All")}
         >
           <Text
             style={[
-              addExercistStyles.tabText,
-              tab === "All" && addExercistStyles.tabTextSelected,
+              addExerciseStyles.tabText,
+              tab === "All" && addExerciseStyles.tabTextSelected,
             ]}
           >
             All
@@ -76,15 +54,15 @@ const AddExerciseScene = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[
-            addExercistStyles.tabButton,
-            tab === "Previous Exercises" && addExercistStyles.tabSelected,
+            addExerciseStyles.tabButton,
+            tab === "Previous Exercises" && addExerciseStyles.tabSelected,
           ]}
           onPress={() => setTab("Previous Exercises")}
         >
           <Text
             style={[
-              addExercistStyles.tabText,
-              tab === "Previous Exercises" && addExercistStyles.tabTextSelected,
+              addExerciseStyles.tabText,
+              tab === "Previous Exercises" && addExerciseStyles.tabTextSelected,
             ]}
           >
             Previous Exercises
@@ -92,15 +70,15 @@ const AddExerciseScene = () => {
         </TouchableOpacity>
         <TouchableOpacity
           style={[
-            addExercistStyles.tabButton,
-            tab === "Custom Exercises" && addExercistStyles.tabSelected,
+            addExerciseStyles.tabButton,
+            tab === "Custom Exercises" && addExerciseStyles.tabSelected,
           ]}
           onPress={() => setTab("Custom Exercises")}
         >
           <Text
             style={[
-              addExercistStyles.tabText,
-              tab === "Custom Exercises" && addExercistStyles.tabTextSelected,
+              addExerciseStyles.tabText,
+              tab === "Custom Exercises" && addExerciseStyles.tabTextSelected,
             ]}
           >
             Custom Exercises
@@ -135,13 +113,13 @@ const AddExerciseScene = () => {
     let listHeader = null;
     if (tab === "All") {
       listHeader = (
-        <Text style={addExercistStyles.listHeader}>All Exercises</Text>
+        <Text style={addExerciseStyles.listHeader}>All Exercises</Text>
       );
     } else if (tab === "Previous Exercises") {
-      listHeader = <Text style={addExercistStyles.listHeader}>History</Text>;
+      listHeader = <Text style={addExerciseStyles.listHeader}>History</Text>;
     } else if (tab === "Custom Exercises") {
       listHeader = (
-        <Text style={addExercistStyles.listHeader}>Your Custom Exercises</Text>
+        <Text style={addExerciseStyles.listHeader}>Your Custom Exercises</Text>
       );
     }
 
@@ -158,7 +136,7 @@ const AddExerciseScene = () => {
 
   // Return the main view with all the components
   return (
-    <View style={addExercistStyles.container}>
+    <View style={addExerciseStyles.container}>
       {renderSearchBar()}
       {renderTabs()}
       {renderList()}
