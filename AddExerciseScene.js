@@ -7,7 +7,7 @@ import {
   FlatList,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { addExercistStyles } from "../styles/AddExerciseStyles/addExerciseStyles";
+import { addExercistStyles } from "../styles/addExerciseStyles/addExerciseStyles";
 
 // Import the JSON data
 import exercises from "../utils/exerciseDatabase/exercises.json";
@@ -50,11 +50,6 @@ const AddExerciseScene = () => {
           value={search}
           onChangeText={setSearch}
         />
-        <TouchableOpacity style={addExercistStyles.customButton}>
-          <Text style={addExercistStyles.customText}>
-            Create Custom Exercise
-          </Text>
-        </TouchableOpacity>
       </View>
     );
   };
