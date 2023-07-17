@@ -1,18 +1,48 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Button, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  ScrollView,
+  StyleSheet,
+  FlatList,
+  useFocusEffect,
+} from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import { ThemeContext } from "../contexts/ThemeContext.js";
 import { useNavigation } from "@react-navigation/native";
 import { ExerciseItem } from "../components/addExerciseComponents/ExerciseItem";
 import { DarkStyles } from "../styles/diarySceneStyles/DarkStyles";
 import { LightStyles } from "../styles/diarySceneStyles/LightStyles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DiaryScene = () => {
   const navigation = useNavigation();
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
+
+  // Define a state variable to store the exercises array
   const [exercises, setExercises] = useState([]);
+
+  const fetchExercises = async () => {
+    try {
+      // Get all the keys that start with "exercise_"
+      const keys = await AsyncStorage.getAllKeys();
+      const exerciseKeys = keys.filter((key) => key.startsWith("exercise_"));
+
+      // Get all the values for those keys
+      const values = await AsyncStorage.multiGet(exerciseKeys);
+
+      // Parse the values as JSON objects and store them in the state variable
+      const exercises = values.map(([key, value]) => JSON.parse(value));
+      setExercises(exercises);
+    } catch (error) {
+      // Handle any errors
+      console.error(error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
 
   // Get theme from context
   const { isDarkMode } = useContext(ThemeContext);
@@ -30,6 +60,12 @@ const DiaryScene = () => {
   };
 
   const styles = isDarkMode ? DarkStyles : LightStyles;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchExercises();
+    }, [])
+  );
 
   return (
     <GestureRecognizer
@@ -50,32 +86,32 @@ const DiaryScene = () => {
         </View>
         <View style={styles.exerciseList}>
           <Text style={styles.exerciseText}>Exercise</Text>
-          {/* <Button title="DELETE SELECTED" onPress={handleDeleteItems} /> */}
-          <ScrollView>
-            {/* Render ExerciseItem(s) here */}
-              
+          <FlatList>
+          data={exercises} // Pass the exercises array as the data prop
+            renderItem={(
+              { item } // Pass a function that renders each item as an ExerciseItem component
+            ) => (
+              <ExerciseItem
+                name={item.name}
+                date={item.date}
+                force={item.force}
+                primaryMuscle={item.primaryMuscles}
+                secondaryMuscle={item.secondaryMuscles}
+                weight={item.weight}
+                restTime={item.restTime}
+                sets={item.sets}
+              />
+            )}
+            keyExtractor={(item) => item.date} // Pass a function that returns a unique key for each item
             <Button
               title="ADD EXERCISE"
               onPress={() => navigation.navigate("AddExercise")}
             />
-          </ScrollView>
+          </FlatList>
         </View>
       </View>
     </GestureRecognizer>
   );
-
-  function checkIfChecked() {
-    return (id) => {
-      // Find the index of the exercise with the given id in the exercises array
-      const index = exercises.findIndex((exercise) => exercise.id === id);
-      // Create a copy of the exercises array
-      const newExercises = [...exercises];
-      // Toggle the checked property of the exercise at the index
-      newExercises[index].checked = !newExercises[index].checked;
-      // Update the exercises state with the new array
-      setExercises(newExercises);
-    };
-  }
 
   function changeDate() {
     return (days) => {
@@ -86,16 +122,6 @@ const DiaryScene = () => {
       setSelectedDate(newDate);
     };
   }
-
-  // From AddExerciseScene.js
-  // Return the main view with all the components
-  return (
-    <View style={addExerciseStyles.container}>
-      {renderSearchBar()}
-      {renderTabs()}
-      {renderList()}
-    </View>
-  );
 };
 
 export default DiaryScene;
@@ -146,18 +172,3 @@ function updateDateFromLocalTime(currentDate, setCurrentDate) {
     };
   }, [currentDate]);
 }
-
-// From AddExerciseScene.js
-// A function to render the list of exercises based on the filter function
-const renderList = () => {
-  // Render the flat list of exercises with the header and the item component
-  return (
-    <FlatList
-      data={filterExercises()}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => <ExerciseItem item={item} />}
-      // Here you are rendering the listHeader variable directly, without wrapping it in a Text component
-      ListHeaderComponent={listHeader}
-    />
-  );
-};
