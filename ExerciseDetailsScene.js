@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
+import { TouchableOpacity } from 'react-native';
 
 export default function ExerciseDetailsScene({ route, navigation }) {
   // Get the item object from the route.params prop
@@ -177,6 +178,29 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     <View style={styles.container}>
       {/* Display the item properties */}
       <Text style={styles.title}>{item.name}</Text>
+      <TouchableOpacity
+        // Add a style prop to customize the appearance of the button
+        style={{
+          // Make the button a circle with a diameter of 50 pixels
+          width: 50,
+          height: 50,
+          borderRadius: 25,
+          // Position the button on the top right of the scene
+          position: "absolute",
+          top: 10,
+          right: 10,
+          // Add some padding and background color
+          padding: 10,
+          backgroundColor: "#fff",
+        }}
+        // Keep the onPress prop as it is
+        onPress={() => {
+          saveExercise();
+          navigation.navigate("AddExercise");
+        }}
+      >
+        <Text style={{ fontSize: 24, color: "#000" }}>✓</Text>
+      </TouchableOpacity>
       <Text style={styles.subtitle}>Force: {item.force}</Text>
       <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
       <Text style={styles.subtitle}>
@@ -265,14 +289,15 @@ export default function ExerciseDetailsScene({ route, navigation }) {
 
       {/* Saving the exercise with a check mark button */}
       {/* <Button title="✔️" onPress={saveExercise}/> */}
-
-      <Button
+      {/*Converted this into a touchable opacity, and moved the button to the top right of scene,
+        next to the item.name text render */}
+      {/* <Button
         title="✔️"
         onPress={() => {
           saveExercise();
           navigation.navigate("AddExercise");
         }}
-      />
+      /> */}
 
       {/* Display the sets */}
       {sets.length > 0 && (
@@ -317,11 +342,14 @@ const styles = StyleSheet.create({
     width: 100,
   },
   input: {
+    flex:1,
     fontSize: 16,
     width: 100,
     borderWidth: 1,
     borderColor: "gray",
     marginHorizontal: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   timerRow: {
     flexDirection: "row",
