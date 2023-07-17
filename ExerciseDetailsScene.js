@@ -1,20 +1,30 @@
 // Inside ExerciseDetail.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Alert, StyleSheet } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Audio } from 'expo-av';
-
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  Button,
+  Alert,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Audio } from "expo-av";
 
 export default function ExerciseDetailsScene({ route, navigation }) {
   // Get the item object from the route.params prop
   const { item } = route.params;
 
   // Initialize state variables for user input and sets
-  const [weight, setWeight] = useState('');
-  const [restTime, setRestTime] = useState('');
+  const [weight, setWeight] = useState("");
+  const [restTime, setRestTime] = useState("");
   const [sets, setSets] = useState([]);
-  const [currentSet, setCurrentSet] = useState({ reps: '', weight: '' });
-  const [currentDropSet, setCurrentDropSet] = useState({ reps: '', weight: '' });
+  const [currentSet, setCurrentSet] = useState({ reps: "", weight: "" });
+  const [currentDropSet, setCurrentDropSet] = useState({
+    reps: "",
+    weight: "",
+  });
 
   // Initialize state variables for timer and sound
   const [timer, setTimer] = useState(null);
@@ -24,9 +34,10 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   // Load the sound file for the alarm
   useEffect(() => {
     async function loadSound() {
-      const { sound } = await Audio.Sound.createAsync(
+      const { sound } = await Audio.Sound
+        .createAsync
         //require("./assets/alarm.mp3")
-        );
+        ();
       setSound(sound);
     }
     loadSound();
@@ -76,7 +87,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     } catch (error) {
       // Handle any errors
       console.error(error);
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+      Alert.alert("Error", "Something went wrong. Please try again.");
     }
   }
 
@@ -84,7 +95,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   function addSet() {
     // Validate the input
     if (!currentSet.reps || !currentSet.weight) {
-      Alert.alert('Invalid input', 'Please enter reps and weight for the set.');
+      Alert.alert("Invalid input", "Please enter reps and weight for the set.");
       return;
     }
 
@@ -92,7 +103,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     setSets((sets) => [...sets, currentSet]);
 
     // Reset the current set input
-    setCurrentSet({ reps: '', weight: '' });
+    setCurrentSet({ reps: "", weight: "" });
   }
 
   // Add a new drop set with the current drop set input
@@ -100,8 +111,8 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     // Validate the input
     if (!currentDropSet.reps || !currentDropSet.weight) {
       Alert.alert(
-        'Invalid input',
-        'Please enter reps and weight for the drop set.'
+        "Invalid input",
+        "Please enter reps and weight for the drop set."
       );
       return;
     }
@@ -117,14 +128,14 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     });
 
     // Reset the current drop set input
-    setCurrentDropSet({ reps: '', weight: '' });
+    setCurrentDropSet({ reps: "", weight: "" });
   }
 
   // Start a rest timer with the rest time input
   function startRest() {
     // Validate the input
     if (!restTime) {
-      Alert.alert('Invalid input', 'Please enter rest time in seconds.');
+      Alert.alert("Invalid input", "Please enter rest time in seconds.");
       return;
     }
 
@@ -168,18 +179,20 @@ export default function ExerciseDetailsScene({ route, navigation }) {
       <Text style={styles.title}>{item.name}</Text>
       <Text style={styles.subtitle}>Force: {item.force}</Text>
       <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-      <Text style={styles.subtitle}>Secondary Muscle: {item.secondaryMuscles}</Text>
+      <Text style={styles.subtitle}>
+        Secondary Muscle: {item.secondaryMuscles}
+      </Text>
 
       {/* User input for weight and rest time */}
       <View style={styles.inputRow}>
-        <Text style={styles.inputLabel}>Weight:</Text>
+        {/* <Text style={styles.inputLabel}>Weight:</Text>
         <TextInput
           style={styles.input}
           value={weight}
           onChangeText={setWeight}
           placeholder="Enter weight in lbs"
           keyboardType="numeric"
-        />
+        /> */}
       </View>
       <View style={styles.inputRow}>
         <Text style={styles.inputLabel}>Rest Time:</Text>
@@ -251,13 +264,28 @@ export default function ExerciseDetailsScene({ route, navigation }) {
       </View>
 
       {/* Saving the exercise with a check mark button */}
-      <Button title="✔️" onPress={saveExercise} />
+      {/* <Button title="✔️" onPress={saveExercise}/> */}
+
+      <Button
+        title="✔️"
+        onPress={() => {
+          saveExercise();
+          navigation.navigate("AddExercise");
+        }}
+      />
 
       {/* Display the sets */}
       {sets.length > 0 && (
         <>
           <Text style={styles.title}>Sets:</Text>
-          {sets.map(renderSetItem)}
+
+          <ScrollView
+            vertical
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ alignItems: "center" }}
+          >
+            {sets.map(renderSetItem)}
+          </ScrollView>
         </>
       )}
     </View>
@@ -272,7 +300,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
   },
   subtitle: {
@@ -280,8 +308,8 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginVertical: 5,
   },
   inputLabel: {
@@ -292,22 +320,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     width: 100,
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     marginHorizontal: 5,
   },
   timerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-evenly',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-evenly",
     marginVertical: 10,
   },
   timerText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   setItem: {
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     padding: 10,
     marginVertical: 5,
   },
