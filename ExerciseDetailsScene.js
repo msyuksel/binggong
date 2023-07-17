@@ -72,7 +72,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         name: item.name,
         force: item.force,
         primaryMuscle: item.primaryMuscles,
-        secondaryMuscle: item.secondaryMuscle,
+        secondaryMuscle: item.secondaryMuscles,
         weight: weight,
         restTime: restTime,
         sets: sets,
@@ -196,7 +196,10 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         // Keep the onPress prop as it is
         onPress={() => {
           saveExercise();
-          navigation.navigate("AddExercise");
+          /* If you want to navigate directly to diary instead of just going back to 
+          add exercise scene, you need to delete the navigate back function in saveExercise()
+          and uncomment the line below*/
+          //navigation.navigate("Diary");
         }}
       >
         <Text style={{ fontSize: 24, color: "#000" }}>✓</Text>
