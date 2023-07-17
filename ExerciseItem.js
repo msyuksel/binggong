@@ -5,6 +5,8 @@ import { useNavigation } from "@react-navigation/native";
 
 import { addExerciseStyles } from "../../styles/addExerciseStyles/addExerciseStyles";
 
+import PropTypes from "prop-types";
+
 // A component for rendering each exercise item
 export const ExerciseItem = ({ item }) => {
   const navigation = useNavigation();
@@ -29,3 +31,13 @@ export const ExerciseItem = ({ item }) => {
   );
 };
 
+ExerciseItem.propTypes = {
+  name: PropTypes.string.isRequired,
+  force: PropTypes.string.isRequired,
+  primaryMuscles: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
+  secondaryMuscles: PropTypes.oneOfType([PropTypes.string, PropTypes.array]).isRequired,
+  weight: PropTypes.number,
+  restTime: PropTypes.number,
+  sets: PropTypes.number,
+  date: PropTypes.string,
+};
