@@ -1,20 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  View,
-  Text,
-  Button,
-  ScrollView,
-  StyleSheet,
-  FlatList,
-  useFocusEffect,
-} from "react-native";
+import { View, Text, Button, ScrollView, AsyncStorage } from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import { ThemeContext } from "../contexts/ThemeContext.js";
 import { useNavigation } from "@react-navigation/native";
-import { ExerciseItem } from "../components/addExerciseComponents/ExerciseItem";
 import { DarkStyles } from "../styles/diarySceneStyles/DarkStyles";
 import { LightStyles } from "../styles/diarySceneStyles/LightStyles";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+//import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DiaryScene = () => {
   const navigation = useNavigation();
@@ -60,12 +51,9 @@ const DiaryScene = () => {
   };
 
   const styles = isDarkMode ? DarkStyles : LightStyles;
-
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchExercises();
-    }, [])
-  );
+  useEffect(() => {
+    fetchExercises();
+  }, []);
 
   return (
     <GestureRecognizer
@@ -86,32 +74,33 @@ const DiaryScene = () => {
         </View>
         <View style={styles.exerciseList}>
           <Text style={styles.exerciseText}>Exercise</Text>
-          <FlatList>
-          data={exercises} // Pass the exercises array as the data prop
-            renderItem={(
-              { item } // Pass a function that renders each item as an ExerciseItem component
-            ) => (
-              <ExerciseItem
-                name={item.name}
-                date={item.date}
-                force={item.force}
-                primaryMuscle={item.primaryMuscles}
-                secondaryMuscle={item.secondaryMuscles}
-                weight={item.weight}
-                restTime={item.restTime}
-                sets={item.sets}
-              />
-            )}
-            keyExtractor={(item) => item.date} // Pass a function that returns a unique key for each item
+
+          {/* <Button title="DELETE SELECTED" onPress={handleDeleteItems} /> */}
+          <ScrollView>
+            {/* Render ExerciseItem(s) here */}
+
             <Button
               title="ADD EXERCISE"
               onPress={() => navigation.navigate("AddExercise")}
             />
-          </FlatList>
+          </ScrollView>
         </View>
       </View>
     </GestureRecognizer>
   );
+
+  function checkIfChecked() {
+    return (id) => {
+      // Find the index of the exercise with the given id in the exercises array
+      const index = exercises.findIndex((exercise) => exercise.id === id);
+      // Create a copy of the exercises array
+      const newExercises = [...exercises];
+      // Toggle the checked property of the exercise at the index
+      newExercises[index].checked = !newExercises[index].checked;
+      // Update the exercises state with the new array
+      setExercises(newExercises);
+    };
+  }
 
   function changeDate() {
     return (days) => {
