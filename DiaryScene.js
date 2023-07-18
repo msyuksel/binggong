@@ -1,10 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import {
-  View,
-  Text,
-  Button,
-  ScrollView,
-} from "react-native";
+import { View, Text, Button, ScrollView } from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import { ThemeContext } from "../contexts/ThemeContext.js";
 import { useNavigation } from "@react-navigation/native";
@@ -56,23 +51,24 @@ const DiaryScene = () => {
         </View>
         <View style={styles.exerciseList}>
           <Text style={styles.exerciseText}>Exercise</Text>
-          
+
           {/* <Button title="DELETE SELECTED" onPress={handleDeleteItems} /> */}
           <ScrollView>
             {/* If the exercise that's saved in ExerciseDetailsScene.js has a matching date with the formatDate,
-            display the exercise in the list like with ExerciseItem.js*/}
-              {/*how would i compare formatDate(selectedDate) to exerciseData in ExerciseDetailsScene.js?*/}
-              {/* {exerciseData.map((exercise) => {
-                if (exercise.date === formatDate(selectedDate)) {
-                  return (
-                    <ExerciseItem
-                      key={exercise.id}
-                      exercise={exercise}
-                    />
-                  );
-                }
+            display the exercise in the list like with ExerciseItem.js.
+            For now, display all exercise data inside boxes with the data converted to text*/}
+            {exercises.map((exercise) => {
+              if (exercise.date === formatDate(selectedDate)) {
+                return (
+                  <ExerciseItem
+                    key={exercise.id}
+                    exercise={exercise}
+                    setSelectedDate={setSelectedDate}
+                  />
+                );
               }
-              )} */}
+            })}
+
             <Button
               title="ADD EXERCISE"
               onPress={() => navigation.navigate("AddExercise")}
@@ -92,7 +88,6 @@ const DiaryScene = () => {
       setSelectedDate(newDate);
     };
   }
-
 };
 
 export default DiaryScene;
@@ -143,5 +138,3 @@ function updateDateFromLocalTime(currentDate, setCurrentDate) {
     };
   }, [currentDate]);
 }
-
-
