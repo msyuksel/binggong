@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity } from "react-native";
 
 export default function ExerciseDetailsScene({ route, navigation }) {
   // Get the item object from the route.params prop
@@ -35,11 +35,8 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   // Load the sound file for the alarm
   useEffect(() => {
     async function loadSound() {
-      const { sound } = await Audio.Sound
-        .createAsync(
-        require("../assets/alarm.mp3")
-        //{uri: "https://example.com/sound.mp3"}
-        );
+      const { sound } = Audio.Sound.createAsync;
+      require("../assets/alarm.mp3")();
       setSound(sound);
     }
     loadSound();
@@ -70,19 +67,19 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     try {
       // Create an object with the exercise data
       const exerciseData = {
-        name: item.name,
-        force: item.force,
-        primaryMuscle: item.primaryMuscles,
-        secondaryMuscle: item.secondaryMuscles,
-        weight: weight,
-        restTime: restTime,
-        sets: sets,
-        date: new Date().toISOString(),
+        name: item.name, // the name of the exercise
+        force: item.force, // the force applied by the exercise
+        primaryMuscle: item.primaryMuscles, // the primary muscle group targeted by the exercise
+        secondaryMuscle: item.secondaryMuscles, // the secondary muscle group targeted by the exercise
+        weight: weight, // the weight used for the exercise
+        restTime: restTime, // the rest time between sets for the exercise
+        sets: sets, // the number of sets performed for the exercise
+        date: new Date().toISOString(), // the date and time when the exercise was done
       };
 
       // Save the data in local storage with a unique key
-      const key = `exercise_${Date.now()}`;
-      await AsyncStorage.setItem(key, JSON.stringify(exerciseData));
+      const key = `exercise_${Date.now()}`; // create a unique key using the current timestamp
+      await AsyncStorage.setItem(key, JSON.stringify(exerciseData)); // store the data as a stringified JSON object using the key
 
       // Navigate back to the previous screen
       navigation.goBack();
@@ -331,14 +328,14 @@ const styles = StyleSheet.create({
     width: 100,
   },
   input: {
-    flex:1,
+    flex: 1,
     fontSize: 16,
     width: 100,
     borderWidth: 1,
     borderColor: "gray",
     marginHorizontal: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   timerRow: {
     flexDirection: "row",
