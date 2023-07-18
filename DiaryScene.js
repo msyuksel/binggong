@@ -4,16 +4,52 @@ import {
   Text,
   Button,
   ScrollView,
+  TextInput,
+  Alert,
+  StyleSheet,
+  FlatList,
 } from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import { ThemeContext } from "../contexts/ThemeContext.js";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native"; // import the useNavigation and useRoute hooks
 import { DarkStyles } from "../styles/diarySceneStyles/DarkStyles";
 import { LightStyles } from "../styles/diarySceneStyles/LightStyles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ExerciseItem } from "../components/addExerciseComponents/ExerciseItem.js";
 
-const DiaryScene = () => {
+const filterDuplicates = (data) => {
+  const seen = new Set(); // create a set to store seen names
+  return data.filter((item) => {
+    // filter out any item that has a name already in the set
+    if (seen.has(item.name)) {
+      return false;
+    } else {
+      seen.add(item.name); // add the name to the set
+      return true;
+    }
+  });
+};
+
+export default function DiaryScene() {
   const navigation = useNavigation();
+
+  // Use the useRoute hook to get the route object
+  const route = useRoute();
+
+  // Get the date from the route.params object
+  const { date } = route.params;
+
+  // Use nav instead of navigation when referring to the prop
+  navigation.setOptions({
+    headerRight: () => (
+      <TouchableOpacity
+        style={{ marginRight: 10 }}
+        onPress={() => navigation.navigate("AddExercise")}
+      >
+        <Ionicons name="add" size={24} color="white" />
+      </TouchableOpacity>
+    ),
+  });
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -61,38 +97,66 @@ const DiaryScene = () => {
   //   fetchExercises();
   // }, []);
 
-  return (
-    <GestureRecognizer
-      onSwipeLeft={handleSwipeLeft}
-      onSwipeRight={handleSwipeRight}
-      config={config}
-      style={styles.container}
-    >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.dateText} onPress={() => handleChangeDate(-1)}>
-            {"<"}
-          </Text>
-          <Text style={styles.dateText}>{formatDate(selectedDate)}</Text>
-          <Text style={styles.dateText} onPress={() => handleChangeDate(1)}>
-            {">"}
-          </Text>
-        </View>
-        <View style={styles.exerciseList}>
-          <Text style={styles.exerciseText}>Exercise</Text>
-          
-          {/* <Button title="DELETE SELECTED" onPress={handleDeleteItems} /> */}
-          <ScrollView>
-            {/* Render ExerciseItem(s) here */}
+  // Get the current date from the route.params prop
+  const { date } = route.params;
 
-            <Button
-              title="ADD EXERCISE"
-              onPress={() => navigation.navigate("AddExercise")}
-            />
-          </ScrollView>
-        </View>
-      </View>
-    </GestureRecognizer>
+  // Initialize state variable for exercise data
+  const [data, setData] = useState([]);
+
+  // Retrieve data from AsyncStorage whenever the date changes
+  useEffect(() => {
+    async function getData() {
+      try {
+        // Get all keys from AsyncStorage
+        const keys = await AsyncStorage.getAllKeys();
+
+        // Filter out any key that does not match the current date
+        const filteredKeys = keys.filter((key) =>
+          key.includes(date.toISOString())
+        );
+
+        // Get all values for the filtered keys
+        const values = await AsyncStorage.multiGet(filteredKeys);
+
+        // Parse each value as a JSON object and store it in an array
+        const parsedValues = values.map((value) => JSON.parse(value[1]));
+
+        // Filter out any duplicate exercises by name
+        const filteredValues = filterDuplicates(parsedValues);
+
+        // Set the state variable with the filtered values
+        setData(filteredValues);
+      } catch (error) {
+        // Handle any errors
+        console.error(error);
+        Alert.alert("Error", "Something went wrong. Please try again.");
+      }
+    }
+    getData();
+  }, [date]);
+
+  return (
+    <View style={styles.container}>
+    <Text style={styles.date}>{date.toDateString()}</Text>
+    {data.length === 0 ? ( // check if there is no data
+      <Text style={styles.message}>No exercises added for this day.</Text> // show a placeholder message
+    ) : (
+      <FlatList // show a FlatList component
+        data={data} // pass the data array as a prop
+        keyExtractor={(item) => item.name} // use the name as a key
+        renderItem={({ item }) => ( // render each item using ExerciseItem component
+          <ExerciseItem
+            item={item} // pass the item object as a prop
+            weight={item.weight} // pass the weight as a prop
+            restTime={item.restTime} // pass the rest time as a prop
+            sets={item.sets} // pass the sets array as a prop
+            dropSets={item.dropSets} // pass the drop sets array as a prop
+          />
+        )}
+      />
+    )}
+  </View>
+
   );
 
   function changeDate() {
@@ -104,10 +168,7 @@ const DiaryScene = () => {
       setSelectedDate(newDate);
     };
   }
-
-};
-
-export default DiaryScene;
+}
 
 function checkIfToday() {
   return (date) => {
@@ -155,5 +216,3 @@ function updateDateFromLocalTime(currentDate, setCurrentDate) {
     };
   }, [currentDate]);
 }
-
-
