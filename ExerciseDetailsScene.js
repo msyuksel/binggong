@@ -83,6 +83,8 @@ export default function ExerciseDetailsScene({ route, navigation }) {
 
       // Navigate back to the previous screen
       navigation.goBack();
+      console.log("exerciseData:", JSON.stringify(exerciseData));
+
     } catch (error) {
       // Handle any errors
       console.error(error);
