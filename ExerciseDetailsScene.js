@@ -1,17 +1,10 @@
 // Inside ExerciseDetail.js
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Button,
-  Alert,
-  StyleSheet,
-  ScrollView,
-} from "react-native";
+import { View, Text, TextInput, Button, Alert, ScrollView } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Audio } from "expo-av";
 import { TouchableOpacity } from "react-native";
+import { ExerciseDetailsStyles } from "../styles/exerciseDetailsStyles/ExerciseDetailsStyles";
 
 export default function ExerciseDetailsScene({ route, navigation }) {
   // Get the item object from the route.params prop
@@ -84,7 +77,6 @@ export default function ExerciseDetailsScene({ route, navigation }) {
       // Navigate back to the previous screen
       navigation.goBack();
       console.log("exerciseData:", JSON.stringify(exerciseData));
-
     } catch (error) {
       // Handle any errors
       console.error(error);
@@ -160,13 +152,13 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   // Render a set item with its drop sets if any
   function renderSetItem(set, index) {
     return (
-      <View key={index} style={styles.setItem}>
-        <Text style={styles.setText}>
+      <View key={index} style={ExerciseDetailsStyles.setItem}>
+        <Text style={ExerciseDetailsStyles.setText}>
           Set {index + 1}: {set.reps} reps x {set.weight} lbs
         </Text>
         {set.dropSets &&
           set.dropSets.map((dropSet, i) => (
-            <Text key={i} style={styles.dropSetText}>
+            <Text key={i} style={ExerciseDetailsStyles.dropSetText}>
               Drop set {i + 1}: {dropSet.reps} reps x {dropSet.weight} lbs
             </Text>
           ))}
@@ -175,9 +167,9 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={ExerciseDetailsStyles.container}>
       {/* Display the item properties */}
-      <Text style={styles.title}>{item.name}</Text>
+      <Text style={ExerciseDetailsStyles.title}>{item.name}</Text>
       <TouchableOpacity
         // Add a style prop to customize the appearance of the button
         style={{
@@ -204,27 +196,21 @@ export default function ExerciseDetailsScene({ route, navigation }) {
       >
         <Text style={{ fontSize: 24, color: "#000" }}>✓</Text>
       </TouchableOpacity>
-      <Text style={styles.subtitle}>Force: {item.force}</Text>
-      <Text style={styles.subtitle}>Primary Muscle: {item.primaryMuscles}</Text>
-      <Text style={styles.subtitle}>
+      <Text style={ExerciseDetailsStyles.subtitle}>Force: {item.force}</Text>
+      <Text style={ExerciseDetailsStyles.subtitle}>
+        Primary Muscle: {item.primaryMuscles}
+      </Text>
+      <Text style={ExerciseDetailsStyles.subtitle}>
         Secondary Muscle: {item.secondaryMuscles}
       </Text>
 
       {/* User input for weight and rest time */}
-      <View style={styles.inputRow}>
-        {/* <Text style={styles.inputLabel}>Weight:</Text>
-        <TextInput
-          style={styles.input}
-          value={weight}
-          onChangeText={setWeight}
-          placeholder="Enter weight in lbs"
-          keyboardType="numeric"
-        /> */}
+      <View style={ExerciseDetailsStyles.inputRow}>
       </View>
-      <View style={styles.inputRow}>
-        <Text style={styles.inputLabel}>Rest Time:</Text>
+      <View style={ExerciseDetailsStyles.inputRow}>
+        <Text style={ExerciseDetailsStyles.inputLabel}>Rest Time:</Text>
         <TextInput
-          style={styles.input}
+          style={ExerciseDetailsStyles.input}
           value={restTime}
           onChangeText={setRestTime}
           placeholder="Enter rest time in seconds"
@@ -232,10 +218,10 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         />
       </View>
       {/* Adding sets and drop sets with buttons */}
-      <View style={styles.inputRow}>
-        <Text style={styles.inputLabel}>Add Set:</Text>
+      <View style={ExerciseDetailsStyles.inputRow}>
+        <Text style={ExerciseDetailsStyles.inputLabel}>Add Set:</Text>
         <TextInput
-          style={styles.input}
+          style={ExerciseDetailsStyles.input}
           value={currentSet.reps}
           onChangeText={(text) =>
             setCurrentSet((set) => ({ ...set, reps: text }))
@@ -244,7 +230,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
           keyboardType="numeric"
         />
         <TextInput
-          style={styles.input}
+          style={ExerciseDetailsStyles.input}
           value={currentSet.weight}
           onChangeText={(text) =>
             setCurrentSet((set) => ({ ...set, weight: text }))
@@ -254,10 +240,10 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         />
         <Button title="ADD SET" onPress={addSet} />
       </View>
-      <View style={styles.inputRow}>
-        <Text style={styles.inputLabel}>Add Drop Set:</Text>
+      <View style={ExerciseDetailsStyles.inputRow}>
+        <Text style={ExerciseDetailsStyles.inputLabel}>Add Drop Set:</Text>
         <TextInput
-          style={styles.input}
+          style={ExerciseDetailsStyles.input}
           value={currentDropSet.reps}
           onChangeText={(text) =>
             setCurrentDropSet((set) => ({ ...set, reps: text }))
@@ -266,7 +252,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
           keyboardType="numeric"
         />
         <TextInput
-          style={styles.input}
+          style={ExerciseDetailsStyles.input}
           value={currentDropSet.weight}
           onChangeText={(text) =>
             setCurrentDropSet((set) => ({ ...set, weight: text }))
@@ -277,12 +263,14 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         <Button title="ADD DROP SET" onPress={addDropSet} />
       </View>
       {/* Starting a rest timer with an alarm */}
-      <View style={styles.timerRow}>
+      <View style={ExerciseDetailsStyles.timerRow}>
         {!timer ? (
           <Button title="START REST" onPress={startRest} />
         ) : (
           <>
-            <Text style={styles.timerText}>{secondsLeft} seconds left</Text>
+            <Text style={ExerciseDetailsStyles.timerText}>
+              {secondsLeft} seconds left
+            </Text>
             <Button title="STOP REST" onPress={stopRest} color="red" />
           </>
         )}
@@ -290,7 +278,7 @@ export default function ExerciseDetailsScene({ route, navigation }) {
       {/* Display the sets */}
       {sets.length > 0 && (
         <>
-          <Text style={styles.title}>Sets:</Text>
+          <Text style={ExerciseDetailsStyles.title}>Sets:</Text>
 
           <ScrollView
             vertical
@@ -304,62 +292,3 @@ export default function ExerciseDetailsScene({ route, navigation }) {
     </View>
   );
 }
-
-// Define some styles for the UI elements
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginVertical: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    marginVertical: 5,
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginVertical: 5,
-  },
-  inputLabel: {
-    fontSize: 16,
-    width: 100,
-  },
-  input: {
-    flex: 1,
-    fontSize: 16,
-    width: 100,
-    borderWidth: 1,
-    borderColor: "gray",
-    marginHorizontal: 5,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  timerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    marginVertical: 10,
-  },
-  timerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-  setItem: {
-    borderWidth: 1,
-    borderColor: "gray",
-    padding: 10,
-    marginVertical: 5,
-  },
-  setText: {
-    fontSize: 18,
-  },
-  dropSetText: {
-    fontSize: 16,
-    marginLeft: 20,
-  },
-});
