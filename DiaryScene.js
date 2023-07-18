@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, Button, ScrollView, AsyncStorage } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  ScrollView,
+} from "react-native";
 import GestureRecognizer from "react-native-swipe-gestures";
 import { ThemeContext } from "../contexts/ThemeContext.js";
 import { useNavigation } from "@react-navigation/native";
 import { DarkStyles } from "../styles/diarySceneStyles/DarkStyles";
 import { LightStyles } from "../styles/diarySceneStyles/LightStyles";
-//import AsyncStorage from "@react-native-async-storage/async-storage";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DiaryScene = () => {
   const navigation = useNavigation();
@@ -16,24 +21,24 @@ const DiaryScene = () => {
   // Define a state variable to store the exercises array
   const [exercises, setExercises] = useState([]);
 
-  const fetchExercises = async () => {
-    try {
-      // Get all the keys that start with "exercise_"
-      const keys = await AsyncStorage.getAllKeys();
-      const exerciseKeys = keys.filter((key) => key.startsWith("exercise_"));
+  // const fetchExercises = async () => {
+  //   try {
+  //     // Get all the keys that start with "exercise_"
+  //     const keys = await AsyncStorage.getAllKeys();
+  //     const exerciseKeys = keys.filter((key) => key.startsWith("exercise_"));
 
-      // Get all the values for those keys
-      const values = await AsyncStorage.multiGet(exerciseKeys);
+  //     // Get all the values for those keys
+  //     const values = await AsyncStorage.multiGet(exerciseKeys);
 
-      // Parse the values as JSON objects and store them in the state variable
-      const exercises = values.map(([key, value]) => JSON.parse(value));
-      setExercises(exercises);
-    } catch (error) {
-      // Handle any errors
-      console.error(error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
-    }
-  };
+  //     // Parse the values as JSON objects and store them in the state variable
+  //     const exercises = values.map(([key, value]) => JSON.parse(value));
+  //     setExercises(exercises);
+  //   } catch (error) {
+  //     // Handle any errors
+  //     console.error(error);
+  //     Alert.alert("Error", "Something went wrong. Please try again.");
+  //   }
+  // };
 
   // Get theme from context
   const { isDarkMode } = useContext(ThemeContext);
@@ -51,9 +56,10 @@ const DiaryScene = () => {
   };
 
   const styles = isDarkMode ? DarkStyles : LightStyles;
-  useEffect(() => {
-    fetchExercises();
-  }, []);
+
+  // useEffect(() => {
+  //   fetchExercises();
+  // }, []);
 
   return (
     <GestureRecognizer
@@ -74,7 +80,7 @@ const DiaryScene = () => {
         </View>
         <View style={styles.exerciseList}>
           <Text style={styles.exerciseText}>Exercise</Text>
-
+          
           {/* <Button title="DELETE SELECTED" onPress={handleDeleteItems} /> */}
           <ScrollView>
             {/* Render ExerciseItem(s) here */}
@@ -89,19 +95,6 @@ const DiaryScene = () => {
     </GestureRecognizer>
   );
 
-  function checkIfChecked() {
-    return (id) => {
-      // Find the index of the exercise with the given id in the exercises array
-      const index = exercises.findIndex((exercise) => exercise.id === id);
-      // Create a copy of the exercises array
-      const newExercises = [...exercises];
-      // Toggle the checked property of the exercise at the index
-      newExercises[index].checked = !newExercises[index].checked;
-      // Update the exercises state with the new array
-      setExercises(newExercises);
-    };
-  }
-
   function changeDate() {
     return (days) => {
       // Create a new date object by adding ;the days to the selected date
@@ -111,6 +104,7 @@ const DiaryScene = () => {
       setSelectedDate(newDate);
     };
   }
+
 };
 
 export default DiaryScene;
@@ -161,3 +155,5 @@ function updateDateFromLocalTime(currentDate, setCurrentDate) {
     };
   }, [currentDate]);
 }
+
+
