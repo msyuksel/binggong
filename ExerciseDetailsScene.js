@@ -36,9 +36,10 @@ export default function ExerciseDetailsScene({ route, navigation }) {
   useEffect(() => {
     async function loadSound() {
       const { sound } = await Audio.Sound
-        .createAsync
-        //require("./assets/alarm.mp3")
-        ();
+        .createAsync(
+        require("../assets/alarm.mp3")
+        //{uri: "https://example.com/sound.mp3"}
+        );
       setSound(sound);
     }
     loadSound();
@@ -231,7 +232,6 @@ export default function ExerciseDetailsScene({ route, navigation }) {
           keyboardType="numeric"
         />
       </View>
-
       {/* Adding sets and drop sets with buttons */}
       <View style={styles.inputRow}>
         <Text style={styles.inputLabel}>Add Set:</Text>
@@ -277,7 +277,6 @@ export default function ExerciseDetailsScene({ route, navigation }) {
         />
         <Button title="ADD DROP SET" onPress={addDropSet} />
       </View>
-
       {/* Starting a rest timer with an alarm */}
       <View style={styles.timerRow}>
         {!timer ? (
@@ -289,19 +288,6 @@ export default function ExerciseDetailsScene({ route, navigation }) {
           </>
         )}
       </View>
-
-      {/* Saving the exercise with a check mark button */}
-      {/* <Button title="✔️" onPress={saveExercise}/> */}
-      {/*Converted this into a touchable opacity, and moved the button to the top right of scene,
-        next to the item.name text render */}
-      {/* <Button
-        title="✔️"
-        onPress={() => {
-          saveExercise();
-          navigation.navigate("AddExercise");
-        }}
-      /> */}
-
       {/* Display the sets */}
       {sets.length > 0 && (
         <>
